@@ -4,29 +4,41 @@ import com.njagi.application.dao.StudentDao
 import com.njagi.application.dto.AddStudentRequest
 import com.njagi.application.dto.StudentResponse
 import com.njagi.application.dto.UpdateStudentRequest
+import com.njagi.application.models.Student
 import com.njagi.application.transformer.AddStudentRequestTransformer
+import com.njagi.application.transformer.toStudentResponse
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
-class PersonManagementServiceImpl(private val studentDao: StudentDao,
-                                  private val addStudentRequestTransformer: AddStudentRequestTransformer) : PersonManagementService {
-    override fun findById(id: String): StudentResponse? {
-        TODO("Not yet implemented")
-    }
+class StudentManagementServiceImpl(private val studentDao: StudentDao,
+                                   private val addStudentRequestTransformer: AddStudentRequestTransformer) : StudentManagementService {
 
-    override fun findAll(): List<StudentResponse> {
-        TODO("Not yet implemented")
-    }
+    override fun findById(id: String): StudentResponse? = this.findStudentById(id).toStudentResponse()
+
+
+    override fun findAll(): List<StudentResponse> = this.studentDao.findAll().map(Student::toStudentResponse)
 
     override fun save(addStudentRequest: AddStudentRequest): StudentResponse {
-        TODO("Not yet implemented")
+        return saveOrUpdate(
+            addStudentRequestTransformer.transform(addStudentRequest)
+        )
     }
 
     override fun updateStudent(updateStudentRequest: UpdateStudentRequest): StudentResponse {
-        TODO("Not yet implemented")
+        val student = this.findStudentById(updateStudentRequest.id) ?: throw IllegalStateException("${updateStudentRequest.id} not found")
+      return  this.saveOrUpdate(student.apply {
+            this.name = updateStudentRequest.name
+            this.id = updateStudentRequest.id
+        })
     }
 
     override fun deleteById(id: String) {
-        TODO("Not yet implemented")
+        this.studentDao.deleteById(id)
     }
+
+   private fun findStudentById(id: String): Student? = this.studentDao.findByIdOrNull(id)
+
+    private fun saveOrUpdate(student: Student): StudentResponse = this.studentDao.save<Student?>(student).toStudentResponse()
+    
 }

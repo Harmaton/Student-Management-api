@@ -5,7 +5,7 @@ import com.njagi.application.dto.StudentResponse
 import com.njagi.application.dto.UpdateStudentRequest
 
 
-interface PersonManagementService {
+interface StudentManagementService {
 
     fun findById(id: String): StudentResponse?
 
