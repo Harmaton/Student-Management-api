@@ -1,6 +1,6 @@
 package com.njagi.application.models
 
-import java.time.Year
+
 import javax.persistence.*
 
 @Entity
